@@ -1,2 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamOps</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app"></div>
 
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>StreamOps v0.3</title><style>body{margin:0;font-family:Arial;background:#f4f7fb}.app{max-width:430px;margin:auto;padding:20px}.card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 8px 20px rgba(0,0,0,.08)}button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:12px;background:#2563eb;color:#fff;font-weight:bold}.hidden{display:none}</style></head><body><div class="app"><div id="home"><div class="card"><h2>Good morning, Scott 👋</h2><p><b>Tesco Reading</b></p><p>Dock Leveller DL500</p><button onclick="showJob()">View Details</button></div></div><div id="job" class="hidden"><div class="card"><h2>Job Details</h2><p>Customer: Tesco Reading</p><p>Equipment: Dock Leveller DL500</p><p id="status"><b>Status:</b> Scheduled</p><button onclick="startJourney()">Start Journey</button><button onclick="completeReport()">Complete Report</button><button onclick="goHome()">Back</button></div></div></div><script>function showJob(){home.classList.add('hidden');job.classList.remove('hidden')}function goHome(){job.classList.add('hidden');home.classList.remove('hidden')}function startJourney(){status.innerHTML='<b>Status:</b> Travelling'}function completeReport(){status.innerHTML='<b>Status:</b> Completed';alert('Demo job completed!')}</script></body></html>
+  <script src="app.js"></script>
+</body>
+</html>
