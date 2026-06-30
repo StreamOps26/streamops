@@ -1,13 +1,8 @@
 let jobStatus = "Scheduled";
-let reportText = "";
+let engineerNotes = "";
+let polishedReport = "";
 let partsUsed = "";
 let followUpRequired = "No";
-
-let recentParts = [
-  "DL500-014 Top Hinge",
-  "DL500-001 Hydraulic Oil",
-  "SA250V Control Fuse"
-];
 
 function showHome() {
   document.getElementById("app").innerHTML = `
@@ -54,18 +49,18 @@ function showReport() {
     </div>
 
     <div class="card">
-      <h2>Quick Report</h2>
+      <h2>Engineer Notes</h2>
 
-      <p><strong>Work completed</strong></p>
-      <button class="button secondary" onclick="setReport('Inspected dock leveller, completed safety checks and tested operation successfully.')">
-        Inspection completed
-      </button>
-      <button class="button secondary" onclick="setReport('Repaired fault on dock leveller and confirmed unit is operating correctly.')">
-        Repair completed
-      </button>
-      <button class="button secondary" onclick="setReport('Unable to complete repair. Further parts or follow-up visit required.')">
-        Follow-up required
-      </button>
+      <textarea id="engineerNotes" placeholder="Type what happened on site..." style="width:100%;height:140px;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">${engineerNotes}</textarea>
+
+      <button class="button" onclick="rephraseReport()">AI Rephrase Report</button>
+
+      <hr>
+
+      <p><strong>Professional Report:</strong></p>
+      <p>${polishedReport || "No professional report generated yet."}</p>
+
+      <hr>
 
       <p><strong>Parts used</strong></p>
       <button class="button secondary" onclick="showPartsPage()">Open Parts Used</button>
@@ -74,19 +69,29 @@ function showReport() {
       <p><strong>Follow-up required?</strong></p>
       <button class="button secondary" onclick="setFollowUp('No')">No</button>
       <button class="button secondary" onclick="setFollowUp('Yes')">Yes</button>
-
-      <hr>
-
-      <p><strong>Report:</strong></p>
-      <p>${reportText || "No report selected yet"}</p>
-
-      <p><strong>Follow-up:</strong></p>
       <p>${followUpRequired}</p>
 
       <button class="button" onclick="submitReport()">Submit Report</button>
       <button class="button secondary" onclick="showJob()">Back</button>
     </div>
   `;
+}
+
+function rephraseReport() {
+  engineerNotes = document.getElementById("engineerNotes").value;
+
+  if (engineerNotes.trim() === "") {
+    alert("Please type the engineer notes first.");
+    return;
+  }
+
+  polishedReport =
+    "Attended site and inspected the dock leveller. " +
+    "The reported issue was assessed and the necessary works were carried out. " +
+    "The equipment was tested following completion and left operating correctly. " +
+    "Engineer notes: " + engineerNotes;
+
+  showReport();
 }
 
 function showPartsPage() {
@@ -105,7 +110,6 @@ function showPartsPage() {
       <hr>
 
       <p><strong>Recent Parts</strong></p>
-
       <button class="button secondary" onclick="addPart('DL500-014 Top Hinge')">DL500-014 Top Hinge</button>
       <button class="button secondary" onclick="addPart('DL500-001 Hydraulic Oil')">DL500-001 Hydraulic Oil</button>
       <button class="button secondary" onclick="addPart('SA250V Control Fuse')">SA250V Control Fuse</button>
@@ -114,7 +118,6 @@ function showPartsPage() {
 
       <p><strong>Manual Entry</strong></p>
       <input id="manualPart" placeholder="Enter part number or description" style="width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">
-
       <button class="button" onclick="addManualPart()">Add Manual Part</button>
 
       <hr>
@@ -180,17 +183,17 @@ function addManualPart() {
   showPartsPage();
 }
 
-function setReport(text) {
-  reportText = text;
-  showReport();
-}
-
 function setFollowUp(answer) {
   followUpRequired = answer;
   showReport();
 }
 
 function submitReport() {
+  if (polishedReport.trim() === "") {
+    alert("Please use AI Rephrase Report before submitting.");
+    return;
+  }
+
   jobStatus = "Completed";
   showHome();
 }
