@@ -1,211 +1,192 @@
 let jobStatus = "Scheduled";
+let workflowStep = "home";
 let engineerNotes = "";
 let polishedReport = "";
-let partsUsed = "";
-let followUpRequired = "No";
+let partsUsed = "No parts added";
+let photosTaken = "Not added";
+
+function render() {
+  if (workflowStep === "home") showHome();
+  if (workflowStep === "travelling") showTravelling();
+  if (workflowStep === "onsite") showOnSite();
+  if (workflowStep === "photos") showPhotos();
+  if (workflowStep === "parts") showParts();
+  if (workflowStep === "notes") showNotes();
+  if (workflowStep === "review") showReview();
+}
 
 function showHome() {
   document.getElementById("app").innerHTML = `
     <div class="header">
       <h1>Good morning Scott 👋</h1>
-      <p>Engineer Dashboard</p>
-    </div>
-
-    <div class="card">
-      <h2>Today's First Job</h2>
-      <p><strong>Tesco Reading</strong></p>
-      <p>Dock Leveller DL500</p>
-      <p>09:00</p>
-      <p><span class="status">${jobStatus}</span></p>
-      <button class="button" onclick="showJob()">View Details</button>
-    </div>
-  `;
-}
-
-function showJob() {
-  document.getElementById("app").innerHTML = `
-    <div class="header">
-      <h1>Job Details</h1>
+      <p>Next action</p>
     </div>
 
     <div class="card">
       <h2>Tesco Reading</h2>
-      <p>Dock Leveller DL500</p>
+      <p><strong>Dock Leveller DL500</strong></p>
+      <p>09:00 · Priority: High</p>
       <p class="status">${jobStatus}</p>
 
       <button class="button" onclick="startJourney()">Start Journey</button>
-      <button class="button" onclick="arrivedOnSite()">Arrived On Site</button>
-      <button class="button" onclick="showReport()">Complete Report</button>
-      <button class="button secondary" onclick="showHome()">Back</button>
     </div>
   `;
 }
 
-function showReport() {
+function showTravelling() {
   document.getElementById("app").innerHTML = `
     <div class="header">
-      <h1>Job Report</h1>
+      <h1>Travelling</h1>
       <p>Tesco Reading</p>
     </div>
 
     <div class="card">
-      <h2>Engineer Notes</h2>
+      <h2>Estimated arrival</h2>
+      <p style="font-size:32px;"><strong>08:57</strong></p>
+      <p class="status">Travelling</p>
 
-      <textarea id="engineerNotes" placeholder="Type what happened on site..." style="width:100%;height:140px;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">${engineerNotes}</textarea>
-
-      <button class="button" onclick="rephraseReport()">AI Rephrase Report</button>
-
-      <hr>
-
-      <p><strong>Professional Report:</strong></p>
-      <p>${polishedReport || "No professional report generated yet."}</p>
-
-      <hr>
-
-      <p><strong>Parts used</strong></p>
-      <button class="button secondary" onclick="showPartsPage()">Open Parts Used</button>
-      <p>${partsUsed || "No parts added yet"}</p>
-
-      <p><strong>Follow-up required?</strong></p>
-      <button class="button secondary" onclick="setFollowUp('No')">No</button>
-      <button class="button secondary" onclick="setFollowUp('Yes')">Yes</button>
-      <p>${followUpRequired}</p>
-
-      <button class="button" onclick="submitReport()">Submit Report</button>
-      <button class="button secondary" onclick="showJob()">Back</button>
+      <button class="button" onclick="arrivedOnSite()">Arrived On Site</button>
     </div>
   `;
 }
 
-function rephraseReport() {
-  engineerNotes = document.getElementById("engineerNotes").value;
-
-  if (engineerNotes.trim() === "") {
-    alert("Please type the engineer notes first.");
-    return;
-  }
-
-  polishedReport =
-    "Attended site and inspected the dock leveller. " +
-    "The reported issue was assessed and the necessary works were carried out. " +
-    "The equipment was tested following completion and left operating correctly. " +
-    "Engineer notes: " + engineerNotes;
-
-  showReport();
-}
-
-function showPartsPage() {
+function showOnSite() {
   document.getElementById("app").innerHTML = `
     <div class="header">
-      <h1>Parts Used</h1>
-      <p>Zero typing parts workflow</p>
+      <h1>On Site</h1>
+      <p>Tesco Reading</p>
     </div>
 
     <div class="card">
-      <h2>Add Parts</h2>
+      <h2>Quick Actions</h2>
 
-      <button class="button" onclick="showScannerPage()">📷 Scan Part</button>
-      <button class="button secondary" onclick="showVanStockPage()">🔍 Search Van Stock</button>
+      <button class="button secondary" onclick="workflowStep='parts'; render()">📷 Scan / Add Parts</button>
+      <button class="button secondary" onclick="workflowStep='photos'; render()">📸 Add Photos</button>
+      <button class="button secondary" onclick="workflowStep='notes'; render()">📝 Engineer Notes</button>
 
-      <hr>
-
-      <p><strong>Recent Parts</strong></p>
-      <button class="button secondary" onclick="addPart('DL500-014 Top Hinge')">DL500-014 Top Hinge</button>
-      <button class="button secondary" onclick="addPart('DL500-001 Hydraulic Oil')">DL500-001 Hydraulic Oil</button>
-      <button class="button secondary" onclick="addPart('SA250V Control Fuse')">SA250V Control Fuse</button>
-
-      <hr>
-
-      <p><strong>Manual Entry</strong></p>
-      <input id="manualPart" placeholder="Enter part number or description" style="width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">
-      <button class="button" onclick="addManualPart()">Add Manual Part</button>
-
-      <hr>
-
-      <p><strong>Current parts used:</strong></p>
-      <p>${partsUsed || "No parts added yet"}</p>
-
-      <button class="button secondary" onclick="showReport()">Back to Report</button>
+      <button class="button" onclick="workflowStep='photos'; render()">Complete Job</button>
     </div>
   `;
 }
 
-function showScannerPage() {
+function showPhotos() {
   document.getElementById("app").innerHTML = `
     <div class="header">
-      <h1>AI Part Scanner</h1>
-      <p>Coming soon</p>
+      <h1>Step 1: Photos</h1>
+      <p>Optional evidence</p>
     </div>
 
     <div class="card">
-      <h2>📷 Point camera at part</h2>
-      <p>Later, this will use AI to identify parts from an image.</p>
+      <h2>Add job photos</h2>
+      <p>Later this will open the camera.</p>
 
-      <button class="button" onclick="addPart('AI Detected Part - Demo')">Add Demo AI Part</button>
-      <button class="button secondary" onclick="showPartsPage()">Back</button>
+      <button class="button secondary" onclick="photosTaken='Photos added'; workflowStep='parts'; render()">📸 Add Demo Photos</button>
+      <button class="button" onclick="workflowStep='parts'; render()">Continue</button>
     </div>
   `;
 }
 
-function showVanStockPage() {
+function showParts() {
   document.getElementById("app").innerHTML = `
     <div class="header">
-      <h1>Van Stock</h1>
-      <p>Select from van stock</p>
+      <h1>Step 2: Parts</h1>
+      <p>Zero typing parts flow</p>
     </div>
 
     <div class="card">
-      <h2>Available Parts</h2>
+      <h2>Parts Used</h2>
 
-      <button class="button secondary" onclick="addPart('DL500-014 Top Hinge')">🔩 DL500-014 Top Hinge - Qty 4</button>
-      <button class="button secondary" onclick="addPart('DL500-001 Hydraulic Oil')">🛢 DL500-001 Hydraulic Oil - Qty 2</button>
-      <button class="button secondary" onclick="addPart('SA250V Control Fuse')">🔌 SA250V Control Fuse - Qty 5</button>
+      <button class="button secondary" onclick="addPart('DL500-014 Top Hinge')">🔩 DL500-014 Top Hinge</button>
+      <button class="button secondary" onclick="addPart('DL500-001 Hydraulic Oil')">🛢 DL500-001 Hydraulic Oil</button>
+      <button class="button secondary" onclick="addPart('No parts used')">No parts used</button>
 
-      <button class="button secondary" onclick="showPartsPage()">Back</button>
+      <p><strong>Selected:</strong></p>
+      <p>${partsUsed}</p>
+
+      <button class="button" onclick="workflowStep='notes'; render()">Continue</button>
     </div>
   `;
 }
 
-function addPart(part) {
-  partsUsed = part;
-  showPartsPage();
+function showNotes() {
+  document.getElementById("app").innerHTML = `
+    <div class="header">
+      <h1>Step 3: Notes</h1>
+      <p>Only typing point</p>
+    </div>
+
+    <div class="card">
+      <h2>What happened?</h2>
+
+      <textarea id="notesBox" placeholder="Example: door noisy, changed hinge, greased and tested working" style="width:100%;height:150px;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">${engineerNotes}</textarea>
+
+      <button class="button" onclick="aiRephrase()">AI Rephrase Report</button>
+      <button class="button secondary" onclick="workflowStep='parts'; render()">Back</button>
+    </div>
+  `;
 }
 
-function addManualPart() {
-  const input = document.getElementById("manualPart").value;
+function showReview() {
+  document.getElementById("app").innerHTML = `
+    <div class="header">
+      <h1>Step 4: Review</h1>
+      <p>Customer-ready report</p>
+    </div>
 
-  if (input.trim() === "") {
-    alert("Please enter a part first.");
-    return;
-  }
+    <div class="card">
+      <h2>Professional Report</h2>
+      <p>${polishedReport}</p>
 
-  partsUsed = input;
-  showPartsPage();
-}
+      <hr>
 
-function setFollowUp(answer) {
-  followUpRequired = answer;
-  showReport();
-}
+      <p><strong>Parts:</strong> ${partsUsed}</p>
+      <p><strong>Photos:</strong> ${photosTaken}</p>
 
-function submitReport() {
-  if (polishedReport.trim() === "") {
-    alert("Please use AI Rephrase Report before submitting.");
-    return;
-  }
-
-  jobStatus = "Completed";
-  showHome();
+      <button class="button" onclick="submitJob()">Submit Job</button>
+      <button class="button secondary" onclick="workflowStep='notes'; render()">Edit Notes</button>
+    </div>
+  `;
 }
 
 function startJourney() {
   jobStatus = "Travelling";
-  showJob();
+  workflowStep = "travelling";
+  render();
 }
 
 function arrivedOnSite() {
   jobStatus = "On Site";
-  showJob();
+  workflowStep = "onsite";
+  render();
 }
 
-showHome();
+function addPart(part) {
+  partsUsed = part;
+  render();
+}
+
+function aiRephrase() {
+  engineerNotes = document.getElementById("notesBox").value;
+
+  if (engineerNotes.trim() === "") {
+    alert("Please type what happened on site first.");
+    return;
+  }
+
+  polishedReport =
+    "Attended site to inspect the dock leveller. " +
+    "The reported issue was assessed and the necessary works were completed. " +
+    "The equipment was tested following completion and left operating correctly. " +
+    "Engineer notes: " + engineerNotes;
+
+  workflowStep = "review";
+  render();
+}
+
+function submitJob() {
+  jobStatus = "Completed";
+  workflowStep = "home";
+  render();
+}
+
+render();
