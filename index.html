@@ -1,80 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamOps</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreamOps</title>
 
-    <style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
 
-        body{
-            margin:0;
-            font-family:Arial, Helvetica, sans-serif;
-            background:#f5f7fb;
-        }
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f8fafc;
+      padding-bottom: 90px;
+    }
 
-        header{
+    .header {
+      padding: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-            background:#0057d8;
-            color:white;
-            padding:20px;
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0b1f3a, #2563eb);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: bold;
+      font-size: 22px;
+    }
 
-        }
+    h1 {
+      font-size: 24px;
+      margin: 0;
+    }
 
-        h1{
+    .small {
+      color: #64748b;
+      font-size: 14px;
+    }
 
-            margin:0;
+    .card {
+      background: white;
+      margin: 14px 18px;
+      padding: 18px;
+      border-radius: 22px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e2e8f0;
+    }
 
-        }
+    .hero {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+    }
 
-        .card{
+    .hero .small {
+      color: #dbeafe;
+    }
 
-            background:white;
-            margin:25px;
-            padding:25px;
-            border-radius:15px;
-            box-shadow:0 5px 15px rgba(0,0,0,.1);
+    .job-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
 
-        }
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
 
-        button{
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
 
-            background:#0057d8;
-            color:white;
-            border:none;
-            padding:15px 25px;
-            border-radius:10px;
-            font-size:16px;
-            cursor:pointer;
+    .secondary {
+      background: #eff6ff;
+      color: #2563eb;
+    }
 
-        }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 18px;
+    }
 
-    </style>
+    .quick {
+      background: white;
+      padding: 18px;
+      border-radius: 20px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      font-weight: bold;
+    }
 
+    .icon {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .job-card {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge {
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 14px;
+      width: calc(100% - 28px);
+      max-width: 402px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+      border-radius: 24px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px;
+    }
+
+    .nav-item {
+      text-align: center;
+      font-size: 11px;
+      color: #64748b;
+      font-weight: bold;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 3px;
+    }
+
+    .active {
+      color: #2563eb;
+    }
+
+    .scan {
+      background: #2563eb;
+      color: white;
+      border-radius: 18px;
+      padding: 8px 0;
+      margin-top: -18px;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1>Good morning, Scott</h1>
+        <div class="small">Engineer App</div>
+      </div>
+      <div class="logo">S</div>
+    </div>
 
-<header>
+    <div class="card hero">
+      <div class="small">Today's First Job</div>
+      <div class="job-title">Tesco Reading</div>
+      <div>Dock Leveller DL500</div>
+      <div style="margin-top: 8px; font-weight: bold;">09:00</div>
+      <button class="secondary">View Details ›</button>
+    </div>
 
-<h1>🚀 StreamOps 2.0</h1>
+    <div style="margin: 0 18px;">
+      <button class="primary">▶ Start Journey</button>
+    </div>
 
-<p>The future of field service management.</p>
+    <div class="grid">
+      <div class="quick">
+        <div class="icon">📷</div>
+        Scan Part
+      </div>
+      <div class="quick">
+        <div class="icon">📖</div>
+        Manuals
+      </div>
+      <div class="quick">
+        <div class="icon">📦</div>
+        Stock
+      </div>
+      <div class="quick">
+        <div class="icon">📞</div>
+        Support
+      </div>
+    </div>
 
-</header>
+    <div class="card">
+      <h2>Next Jobs</h2>
 
-<div class="card">
+      <div class="job-card">
+        <div>
+          <strong>Sainsbury's Basingstoke</strong>
+          <div class="small">10:30 · Sectional Door</div>
+        </div>
+        <div class="badge">Scheduled</div>
+      </div>
 
-<h2>Welcome Scott 👋</h2>
+      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;">
 
-<p>This is the very first production version of StreamOps.</p>
+      <div class="job-card">
+        <div>
+          <strong>DHL Depot</strong>
+          <div class="small">14:00 · Dock Leveller</div>
+        </div>
+        <div class="badge">Scheduled</div>
+      </div>
+    </div>
 
-<p>Today we'll begin building the UK's best engineering management platform.</p>
-
-<button>Start Building</button>
-
-</div>
-
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        Home
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📅</div>
+        Jobs
+      </div>
+      <div class="nav-item scan">
+        <div class="nav-icon">📷</div>
+        Scan
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📦</div>
+        Stock
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">👤</div>
+        Profile
+      </div>
+    </div>
+  </div>
 </body>
-
 </html>
