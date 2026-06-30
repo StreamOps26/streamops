@@ -16,7 +16,6 @@ function showHome() {
       <p>Dock Leveller DL500</p>
       <p>09:00</p>
       <p><span class="status">${jobStatus}</span></p>
-
       <button class="button" onclick="showJob()">View Details</button>
     </div>
   `;
@@ -32,7 +31,6 @@ function showJob() {
       <h2>Tesco Reading</h2>
       <p>Dock Leveller DL500</p>
       <p class="status">${jobStatus}</p>
-
       <button class="button" onclick="startJourney()">Start Journey</button>
       <button class="button" onclick="arrivedOnSite()">Arrived On Site</button>
       <button class="button" onclick="showReport()">Complete Report</button>
@@ -55,19 +53,16 @@ function showReport() {
       <button class="button secondary" onclick="setReport('Inspected dock leveller, completed safety checks and tested operation successfully.')">
         Inspection completed
       </button>
-
       <button class="button secondary" onclick="setReport('Repaired fault on dock leveller and confirmed unit is operating correctly.')">
         Repair completed
       </button>
-
       <button class="button secondary" onclick="setReport('Unable to complete repair. Further parts or follow-up visit required.')">
         Follow-up required
       </button>
 
       <p><strong>Parts used</strong></p>
-      <button class="button secondary" onclick="setParts('None')">No parts used</button>
-      <button class="button secondary" onclick="setParts('DL500-001 Hydraulic Oil')">Hydraulic Oil</button>
-      <button class="button secondary" onclick="setParts('DL500-014 Top Hinge')">Top Hinge</button>
+      <button class="button secondary" onclick="showPartsPage()">Open Parts Used</button>
+      <p>${partsUsed || "No parts added yet"}</p>
 
       <p><strong>Follow-up required?</strong></p>
       <button class="button secondary" onclick="setFollowUp('No')">No</button>
@@ -78,9 +73,6 @@ function showReport() {
       <p><strong>Report:</strong></p>
       <p>${reportText || "No report selected yet"}</p>
 
-      <p><strong>Parts:</strong></p>
-      <p>${partsUsed || "No parts selected yet"}</p>
-
       <p><strong>Follow-up:</strong></p>
       <p>${followUpRequired}</p>
 
@@ -90,13 +82,45 @@ function showReport() {
   `;
 }
 
-function setReport(text) {
-  reportText = text;
-  showReport();
+function showPartsPage() {
+  document.getElementById("app").innerHTML = `
+    <div class="header">
+      <h1>Parts Used</h1>
+      <p>Future AI parts recognition</p>
+    </div>
+
+    <div class="card">
+      <h2>Add Parts</h2>
+
+      <button class="button">📷 AI Image Recognition Coming Soon</button>
+
+      <p><strong>Manual part input</strong></p>
+      <input id="manualPart" placeholder="Enter part number or description" style="width:100%;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">
+
+      <button class="button" onclick="addManualPart()">Add Manual Part</button>
+
+      <p><strong>Current parts used:</strong></p>
+      <p>${partsUsed || "No parts added yet"}</p>
+
+      <button class="button secondary" onclick="showReport()">Back to Report</button>
+    </div>
+  `;
 }
 
-function setParts(parts) {
-  partsUsed = parts;
+function addManualPart() {
+  const input = document.getElementById("manualPart").value;
+
+  if (input.trim() === "") {
+    alert("Please enter a part first.");
+    return;
+  }
+
+  partsUsed = input;
+  showPartsPage();
+}
+
+function setReport(text) {
+  reportText = text;
   showReport();
 }
 
