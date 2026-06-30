@@ -1,16 +1,6 @@
 let jobs = [
-  {
-    customer: "Tesco Reading",
-    equipment: "Dock Leveller DL500",
-    time: "09:00",
-    priority: "High"
-  },
-  {
-    customer: "DHL Depot",
-    equipment: "Industrial Door ID200",
-    time: "11:30",
-    priority: "Normal"
-  }
+  { customer: "Tesco Reading", equipment: "Dock Leveller DL500", time: "09:00", priority: "High" },
+  { customer: "DHL Depot", equipment: "Industrial Door ID200", time: "11:30", priority: "Normal" }
 ];
 
 let currentJobIndex = 0;
@@ -33,6 +23,29 @@ let risks = {
 
 function currentJob() {
   return jobs[currentJobIndex];
+}
+
+function progress(current) {
+  const steps = ["Travel", "Risk", "Work", "Report", "Complete"];
+  return `
+    <div class="card">
+      <p><strong>Progress</strong></p>
+      <div style="display:flex;justify-content:space-between;gap:6px;font-size:12px;">
+        ${steps.map(step => `
+          <div style="
+            flex:1;
+            text-align:center;
+            padding:8px 4px;
+            border-radius:999px;
+            background:${step === current ? "#2563eb" : "#e2e8f0"};
+            color:${step === current ? "white" : "#475569"};
+            font-weight:bold;">
+            ${step === current ? "● " : ""}${step}
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function resetJobData() {
@@ -58,8 +71,8 @@ function render() {
   if (workflowStep === "risk") showRiskAssessment();
   if (workflowStep === "riskSummary") showRiskSummary();
   if (workflowStep === "onsite") showOnSite();
-  if (workflowStep === "photos") showPhotos();
   if (workflowStep === "notes") showNotes();
+  if (workflowStep === "photos") showPhotos();
   if (workflowStep === "parts") showParts();
   if (workflowStep === "review") showReview();
   if (workflowStep === "complete") showJobComplete();
@@ -77,6 +90,8 @@ function showHome() {
       <p>Next action</p>
     </div>
 
+    ${progress("Travel")}
+
     <div class="card">
       <h2>${job.customer}</h2>
       <p><strong>${job.equipment}</strong></p>
@@ -88,13 +103,13 @@ function showHome() {
 }
 
 function showTravelling() {
-  const job = currentJob();
-
   document.getElementById("app").innerHTML = `
     <div class="header">
       <h1>Travelling</h1>
-      <p>${job.customer}</p>
+      <p>${currentJob().customer}</p>
     </div>
+
+    ${progress("Travel")}
 
     <div class="card">
       <h2>Estimated arrival</h2>
@@ -112,9 +127,10 @@ function showRiskAssessment() {
       <p>${currentJob().customer}</p>
     </div>
 
+    ${progress("Risk")}
+
     <div class="card">
       <h2>Site Risks</h2>
-
       ${riskRow("slipsTrips", "Slips, Trips & Falls")}
       ${riskRow("movingVehicles", "Moving Vehicles / FLTs")}
       ${riskRow("workingAtHeight", "Working at Height")}
@@ -122,7 +138,6 @@ function showRiskAssessment() {
       ${riskRow("manualHandling", "Manual Handling")}
       ${riskRow("hotWorks", "Hot Works")}
       ${riskRow("publicArea", "Public / Customer Area")}
-
       <button class="button" onclick="generateRiskSummary()">Risk Assessment</button>
     </div>
   `;
@@ -159,14 +174,13 @@ function showRiskSummary() {
       <p>Generated form</p>
     </div>
 
+    ${progress("Risk")}
+
     <div class="card">
       <h2>Risk Assessment Summary</h2>
-
       <p><strong>Site:</strong> ${job.customer}</p>
       <p><strong>Equipment:</strong> ${job.equipment}</p>
-
       <hr>
-
       <p><strong>Slips, Trips & Falls:</strong> ${risks.slipsTrips}</p>
       <p><strong>Moving Vehicles / FLTs:</strong> ${risks.movingVehicles}</p>
       <p><strong>Working at Height:</strong> ${risks.workingAtHeight}</p>
@@ -174,12 +188,9 @@ function showRiskSummary() {
       <p><strong>Manual Handling:</strong> ${risks.manualHandling}</p>
       <p><strong>Hot Works:</strong> ${risks.hotWorks}</p>
       <p><strong>Public / Customer Area:</strong> ${risks.publicArea}</p>
-
       <hr>
-
       <p><strong>Control Measures:</strong></p>
       <p>Engineer to assess site conditions before starting work, maintain a safe working area, use appropriate PPE, and stop work if conditions become unsafe.</p>
-
       <button class="button" onclick="workflowStep='onsite'; render()">Risk Assessment Complete</button>
       <button class="button secondary" onclick="workflowStep='risk'; render()">Edit Assessment</button>
     </div>
@@ -193,30 +204,14 @@ function showOnSite() {
       <p>${currentJob().customer}</p>
     </div>
 
-    <div class="card">
-      <h2>Quick Actions</h2>
+    ${progress("Work")}
 
-      <button class="button secondary" onclick="workflowStep='photos'; render()">📸 Add Photos</button>
+    <div class="card">
+      <h2>Next Actions</h2>
       <button class="button secondary" onclick="workflowStep='notes'; render()">📝 Job Report</button>
+      <button class="button secondary" onclick="workflowStep='photos'; render()">📸 Add Photos</button>
       <button class="button secondary" onclick="workflowStep='parts'; render()">📦 Add Parts</button>
-
-      <button class="button" onclick="workflowStep='photos'; render()">Complete Job</button>
-    </div>
-  `;
-}
-
-function showPhotos() {
-  document.getElementById("app").innerHTML = `
-    <div class="header">
-      <h1>Step 1: Photos</h1>
-      <p>Optional evidence</p>
-    </div>
-
-    <div class="card">
-      <h2>Add job photos</h2>
-      <p>Later this will open the camera.</p>
-      <button class="button secondary" onclick="photosTaken='Photos added'; workflowStep='notes'; render()">📸 Add Demo Photos</button>
-      <button class="button" onclick="workflowStep='notes'; render()">Continue</button>
+      <button class="button" onclick="workflowStep='notes'; render()">Complete Job</button>
     </div>
   `;
 }
@@ -224,16 +219,35 @@ function showPhotos() {
 function showNotes() {
   document.getElementById("app").innerHTML = `
     <div class="header">
-      <h1>Step 2: Job Report</h1>
+      <h1>Step 1: Job Report</h1>
       <p>Only typing point</p>
     </div>
+
+    ${progress("Report")}
 
     <div class="card">
       <h2>What happened?</h2>
       <textarea id="notesBox" placeholder="Example: door noisy, changed hinge, greased and tested working" style="width:100%;height:150px;padding:14px;border-radius:12px;border:1px solid #ddd;box-sizing:border-box;">${engineerNotes}</textarea>
-
       <button class="button" onclick="aiRephrase()">AI Rephrase Report</button>
-      <button class="button secondary" onclick="workflowStep='photos'; render()">Back</button>
+      <button class="button secondary" onclick="workflowStep='onsite'; render()">Back</button>
+    </div>
+  `;
+}
+
+function showPhotos() {
+  document.getElementById("app").innerHTML = `
+    <div class="header">
+      <h1>Step 2: Photos</h1>
+      <p>Optional evidence</p>
+    </div>
+
+    ${progress("Report")}
+
+    <div class="card">
+      <h2>Add job photos</h2>
+      <p>Later this will open the camera.</p>
+      <button class="button secondary" onclick="photosTaken='Photos added'; workflowStep='parts'; render()">📸 Add Demo Photos</button>
+      <button class="button" onclick="workflowStep='parts'; render()">Continue</button>
     </div>
   `;
 }
@@ -245,15 +259,15 @@ function showParts() {
       <p>Zero typing parts flow</p>
     </div>
 
+    ${progress("Report")}
+
     <div class="card">
       <h2>Parts Used</h2>
       <button class="button secondary" onclick="addPart('DL500-014 Top Hinge')">🔩 DL500-014 Top Hinge</button>
       <button class="button secondary" onclick="addPart('DL500-001 Hydraulic Oil')">🛢 DL500-001 Hydraulic Oil</button>
       <button class="button secondary" onclick="addPart('No parts used')">No parts used</button>
-
       <p><strong>Selected:</strong></p>
       <p>${partsUsed}</p>
-
       <button class="button" onclick="workflowStep='review'; render()">Continue</button>
     </div>
   `;
@@ -266,16 +280,15 @@ function showReview() {
       <p>Customer-ready report</p>
     </div>
 
+    ${progress("Complete")}
+
     <div class="card">
       <h2>Professional Report</h2>
       <p>${polishedReport || "No report generated yet."}</p>
-
       <hr>
-
       <p><strong>Parts:</strong> ${partsUsed}</p>
       <p><strong>Photos:</strong> ${photosTaken}</p>
       <p><strong>Risk Assessment:</strong> Completed</p>
-
       <button class="button" onclick="submitReport()">Submit Report</button>
       <button class="button secondary" onclick="workflowStep='notes'; render()">Edit Report</button>
     </div>
@@ -291,15 +304,15 @@ function showJobComplete() {
       <p>Your report has been saved</p>
     </div>
 
+    ${progress("Complete")}
+
     <div class="card">
       <h2>${currentJob().customer}</h2>
       <p><strong>${currentJob().equipment}</strong></p>
-
       <p>Risk Assessment ✓</p>
       <p>Photos ✓</p>
       <p>Parts ✓</p>
       <p>AI Report ✓</p>
-
       ${hasNextJob ? `<button class="button" onclick="goToNextJob()">Next Job</button>` : ""}
       <button class="button secondary" onclick="startTravelHome()">Travel Home</button>
     </div>
@@ -379,7 +392,7 @@ function aiRephrase() {
   polishedReport =
     "Attended site to inspect the equipment. The reported issue was assessed and the necessary works were completed. The equipment was tested following completion and left operating correctly. Engineer notes: " + engineerNotes;
 
-  workflowStep = "parts";
+  workflowStep = "photos";
   render();
 }
 
