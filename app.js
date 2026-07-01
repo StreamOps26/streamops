@@ -2,16 +2,50 @@ let jobs = [
   {
     customer: "Tesco Reading",
     equipment: "Dock Leveller DL500",
-    priority: "High",
-    type: "Breakdown",
-    status: "Pending"
+    type: "Callout",
+    status: "Pending",
+    heading: "Customer Reported",
+    details: [
+      "Dock leveller not lifting.",
+      "Hydraulic oil leak visible.",
+      "Platform stuck halfway."
+    ]
   },
   {
     customer: "DHL Depot",
-    equipment: "Industrial Door ID200",
-    priority: "Normal",
+    equipment: "Planned Maintenance",
     type: "Routine Service",
-    status: "Pending"
+    status: "Pending",
+    heading: "Scope of Work",
+    details: [
+      "10 x Sectional Doors",
+      "8 x Dock Levellers",
+      "2 x High Speed Doors"
+    ]
+  },
+  {
+    customer: "Amazon Birmingham",
+    equipment: "High Speed Door Opening",
+    type: "Site Survey",
+    status: "Pending",
+    heading: "Customer Request",
+    details: [
+      "Measure opening for replacement high-speed door.",
+      "Check power supply location.",
+      "Confirm fixing structure."
+    ]
+  },
+  {
+    customer: "ASDA Swindon",
+    equipment: "Industrial Door ID200",
+    type: "Planned Repairs",
+    status: "Pending",
+    heading: "Repair Scope",
+    details: [
+      "Replace damaged bottom seal.",
+      "Adjust limits.",
+      "Test safety edge operation."
+    ]
   }
 ];
 
@@ -47,11 +81,11 @@ function getAppleDateTime() {
   return `${day} ${date} ${month} ${hours}:${minutes}:${seconds}`;
 }
 
-function jobTypeColour(type) {
-  if (type === "Emergency") return "#ef4444";
-  if (type === "Breakdown") return "#f59e0b";
+function badgeColour(type) {
   if (type === "Routine Service") return "#22c55e";
-  if (type === "Survey") return "#3b82f6";
+  if (type === "Callout") return "#ef4444";
+  if (type === "Planned Repairs") return "#f59e0b";
+  if (type === "Site Survey") return "#3b82f6";
   return "#94a3b8";
 }
 
@@ -101,39 +135,50 @@ function dashboardSummaryCard() {
   `;
 }
 
+function jobCard(job, index) {
+  return `
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div style="flex:1;">
+          <span style="
+            display:inline-block;
+            background:${badgeColour(job.type)};
+            color:white;
+            padding:7px 12px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:.3px;">
+            ${job.type}
+          </span>
+
+          <h2 style="margin-top:16px;">${job.customer}</h2>
+
+          <p><strong>${job.equipment}</strong></p>
+
+          <hr>
+
+          <p style="opacity:.75;"><strong>${job.heading}</strong></p>
+
+          ${job.details.map(item => `<p>${item}</p>`).join("")}
+
+          <p class="status">${job.status}</p>
+        </div>
+      </div>
+
+      ${
+        job.status === "Completed"
+          ? `<button class="button secondary">Completed ✓</button>`
+          : `<button class="button" onclick="startTravel(${index})">Start Travel</button>`
+      }
+    </div>
+  `;
+}
+
 function showDashboard() {
   document.getElementById("app").innerHTML = `
     ${dashboardSummaryCard()}
-
-    ${jobs.map((job, index) => `
-      <div class="card">
-        <p style="opacity:.75;">${job.type}</p>
-
-        <h2>${job.customer}</h2>
-
-        <p><strong>${job.equipment}</strong></p>
-
-        <p>
-          <span style="
-            display:inline-block;
-            width:10px;
-            height:10px;
-            border-radius:50%;
-            background:${jobTypeColour(job.type)};
-            margin-right:6px;">
-          </span>
-          Priority: ${job.priority}
-        </p>
-
-        <p class="status">${job.status}</p>
-
-        ${
-          job.status === "Completed"
-            ? `<button class="button secondary">Completed ✓</button>`
-            : `<button class="button" onclick="startTravel(${index})">Start Travel</button>`
-        }
-      </div>
-    `).join("")}
+    ${jobs.map((job, index) => jobCard(job, index)).join("")}
   `;
 
   updateLiveDateTime();
@@ -143,13 +188,8 @@ function updateLiveDateTime() {
   const timeEl = document.getElementById("liveDateTime");
   const greetingEl = document.getElementById("greetingText");
 
-  if (timeEl) {
-    timeEl.innerText = getAppleDateTime();
-  }
-
-  if (greetingEl) {
-    greetingEl.innerText = getGreeting();
-  }
+  if (timeEl) timeEl.innerText = getAppleDateTime();
+  if (greetingEl) greetingEl.innerText = getGreeting();
 
   setTimeout(updateLiveDateTime, 1000);
 }
