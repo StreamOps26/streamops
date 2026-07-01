@@ -135,35 +135,47 @@ function dashboardSummaryCard() {
   `;
 }
 
+function jobGlowColour(type) {
+  if (type === "Routine Service") return "rgba(34,197,94,.75)";
+  if (type === "Callout") return "rgba(239,68,68,.75)";
+  if (type === "Planned Repairs") return "rgba(245,158,11,.75)";
+  if (type === "Site Survey") return "rgba(59,130,246,.75)";
+  return "rgba(148,163,184,.75)";
+}
+
 function jobCard(job, index) {
   return `
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-        <div style="flex:1;">
-          <span style="
-            display:inline-block;
-            background:${badgeColour(job.type)};
-            color:white;
-            padding:7px 12px;
-            border-radius:999px;
-            font-size:12px;
-            font-weight:700;
-            letter-spacing:.3px;">
-            ${job.type}
-          </span>
+    <div class="card" style="
+      position:relative;
+      overflow:hidden;
+      box-shadow:
+        -6px 0 18px ${jobGlowColour(job.type)},
+        0 10px 40px rgba(0,0,0,.30);
+    ">
+      <div style="
+        position:absolute;
+        left:0;
+        top:18px;
+        bottom:18px;
+        width:4px;
+        border-radius:999px;
+        background:${jobGlowColour(job.type)};
+      "></div>
 
-          <h2 style="margin-top:16px;">${job.customer}</h2>
+      <div style="padding-left:10px;">
+        <p style="opacity:.65;">${job.type}</p>
 
-          <p><strong>${job.equipment}</strong></p>
+        <h2>${job.customer}</h2>
 
-          <hr>
+        <p><strong>${job.equipment}</strong></p>
 
-          <p style="opacity:.75;"><strong>${job.heading}</strong></p>
+        <hr>
 
-          ${job.details.map(item => `<p>${item}</p>`).join("")}
+        <p style="opacity:.75;"><strong>${job.heading}</strong></p>
 
-          <p class="status">${job.status}</p>
-        </div>
+        ${job.details.map(item => `<p>${item}</p>`).join("")}
+
+        <p class="status">${job.status}</p>
       </div>
 
       ${
