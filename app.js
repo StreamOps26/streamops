@@ -3,7 +3,7 @@ let jobs = [
     customer: "Tesco Reading",
     equipment: "Dock Leveller DL500",
     type: "Callout",
-    status: "Pending",
+    state: "Ready",
     heading: "Customer Reported",
     details: [
       "Dock leveller not lifting.",
@@ -15,7 +15,7 @@ let jobs = [
     customer: "DHL Depot",
     equipment: "Planned Maintenance",
     type: "Routine Service",
-    status: "Pending",
+    state: "Ready",
     heading: "Scope of Work",
     details: [
       "10 x Sectional Doors",
@@ -27,7 +27,7 @@ let jobs = [
     customer: "Amazon Birmingham",
     equipment: "High Speed Door Opening",
     type: "Site Survey",
-    status: "Pending",
+    state: "Ready",
     heading: "Customer Request",
     details: [
       "Measure opening for replacement high-speed door.",
@@ -39,7 +39,7 @@ let jobs = [
     customer: "ASDA Swindon",
     equipment: "Industrial Door ID200",
     type: "Planned Repairs",
-    status: "Pending",
+    state: "Ready",
     heading: "Repair Scope",
     details: [
       "Replace damaged bottom seal.",
@@ -60,19 +60,10 @@ function getGreeting() {
 
 function getAppleDateTime() {
   const now = new Date();
-
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
-  const day = days[now.getDay()];
-  const date = now.getDate();
-  const month = months[now.getMonth()];
-
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-
-  return `${day} ${date} ${month} ${hours}:${minutes}:${seconds}`;
+  return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 }
 
 function glowColour(type) {
@@ -102,79 +93,27 @@ function jobGlow(type) {
 }
 
 function completedJobs() {
-  return jobs.filter(job => job.status === "Completed").length;
+  return jobs.filter(job => job.state === "Completed").length;
 }
 
 function dashboardSummaryCard() {
   const completed = completedJobs();
   const percent = (completed / jobs.length) * 100;
-  const allComplete = completed === jobs.length;
-
-  if (allComplete) {
-    return `
-      <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
-        <div style="
-          position:absolute;
-          left:0;
-          top:18px;
-          bottom:18px;
-          width:4px;
-          border-radius:999px;
-          background:rgba(255,255,255,.65);
-          filter:blur(.2px);
-        "></div>
-
-        <div style="padding-left:10px;">
-          <h2 id="greetingText">${getGreeting()}</h2>
-          <p id="liveDateTime">${getAppleDateTime()}</p>
-
-          <hr>
-
-          <h2>Fantastic work.</h2>
-          <p>All ${jobs.length} jobs completed.</p>
-          <p>Drive safely.</p>
-
-          <button class="button" onclick="startTravelHome()">Travel Home</button>
-        </div>
-      </div>
-    `;
-  }
 
   return `
     <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:rgba(255,255,255,.65);
-        filter:blur(.2px);
-      "></div>
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:rgba(255,255,255,.65);"></div>
 
       <div style="padding-left:10px;">
         <h2 id="greetingText">${getGreeting()}</h2>
         <p id="liveDateTime">${getAppleDateTime()}</p>
 
-        <hr>
+        <div style="height:24px;"></div>
 
         <h2>Today’s Schedule</h2>
 
-        <div style="
-          width:100%;
-          height:12px;
-          background:rgba(255,255,255,.18);
-          border-radius:999px;
-          overflow:hidden;
-          margin:16px 0;">
-          <div style="
-            width:${percent}%;
-            height:100%;
-            background:linear-gradient(90deg,#60a5fa,#2563eb,#22c55e);
-            border-radius:999px;
-            transition:.4s;">
-          </div>
+        <div style="width:100%; height:12px; background:rgba(255,255,255,.18); border-radius:999px; overflow:hidden; margin:16px 0;">
+          <div style="width:${percent}%; height:100%; background:linear-gradient(90deg,#60a5fa,#2563eb,#22c55e); border-radius:999px; transition:.4s;"></div>
         </div>
 
         <p>You’ve completed ${completed} of ${jobs.length} jobs today</p>
@@ -184,38 +123,28 @@ function dashboardSummaryCard() {
 }
 
 function jobCard(job, index) {
+  const isCompleted = job.state === "Completed";
+
   return `
-    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(job.type)}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:${glowColour(job.type)};
-        filter:blur(.2px);
-      "></div>
+    <div class="card" style="position:relative; overflow:hidden; ${isCompleted ? dashboardGlow() : jobGlow(job.type)}; opacity:${isCompleted ? ".72" : "1"};">
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${isCompleted ? "rgba(255,255,255,.45)" : glowColour(job.type)};"></div>
 
       <div style="padding-left:10px;">
         <p style="opacity:.65;">${job.type}</p>
-
         <h2>${job.customer}</h2>
-
         <p><strong>${job.equipment}</strong></p>
 
-        <hr>
+        <div style="height:18px;"></div>
 
         <p style="opacity:.75;"><strong>${job.heading}</strong></p>
-
         ${job.details.map(item => `<p>${item}</p>`).join("")}
 
-        <p class="status">${job.status}</p>
+        <p class="status">${job.state}</p>
       </div>
 
       ${
-        job.status === "Completed"
-          ? `<button class="button secondary">Completed ✓</button>`
+        isCompleted
+          ? `<button class="button secondary">Completed</button>`
           : `<button class="button" onclick="startTravel(${index})">Start Travel</button>`
       }
     </div>
@@ -243,6 +172,7 @@ function updateLiveDateTime() {
 
 function startTravel(index) {
   activeJobIndex = index;
+  jobs[index].state = "Travelling";
 
   document.getElementById("app").innerHTML = `
     <div class="header">
@@ -251,15 +181,7 @@ function startTravel(index) {
     </div>
 
     <div class="card" style="position:relative; overflow:hidden; ${jobGlow(jobs[activeJobIndex].type)}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:${glowColour(jobs[activeJobIndex].type)};
-      "></div>
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(jobs[activeJobIndex].type)};"></div>
 
       <div style="padding-left:10px;">
         <h2>${jobs[activeJobIndex].customer}</h2>
@@ -274,6 +196,8 @@ function startTravel(index) {
 }
 
 function arriveOnSite() {
+  jobs[activeJobIndex].state = "On Site";
+
   document.getElementById("app").innerHTML = `
     <div class="header">
       <h1>On Site</h1>
@@ -281,15 +205,7 @@ function arriveOnSite() {
     </div>
 
     <div class="card" style="position:relative; overflow:hidden; ${jobGlow(jobs[activeJobIndex].type)}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:${glowColour(jobs[activeJobIndex].type)};
-      "></div>
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(jobs[activeJobIndex].type)};"></div>
 
       <div style="padding-left:10px;">
         <h2>${jobs[activeJobIndex].customer}</h2>
@@ -304,97 +220,7 @@ function arriveOnSite() {
 }
 
 function completeJob() {
-  jobs[activeJobIndex].status = "Completed";
-  showDashboard();
-}
-
-function startTravelHome() {
-  document.getElementById("app").innerHTML = `
-    <div class="header">
-      <h1>Travelling Home</h1>
-      <p>End of day</p>
-    </div>
-
-    <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:rgba(255,255,255,.65);
-      "></div>
-
-      <div style="padding-left:10px;">
-        <h2>Journey home started</h2>
-        <p class="status">Travelling Home</p>
-      </div>
-
-      <button class="button" onclick="arrivedHome()">Arrived Home</button>
-    </div>
-  `;
-}
-
-function arrivedHome() {
-  document.getElementById("app").innerHTML = `
-    <div class="header">
-      <h1>Arrived Home</h1>
-      <p>End of shift</p>
-    </div>
-
-    <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:rgba(255,255,255,.65);
-      "></div>
-
-      <div style="padding-left:10px;">
-        <h2>Ready to log off</h2>
-        <p>All job and travel activity has been recorded for the day.</p>
-      </div>
-
-      <button class="button" onclick="logOff()">Log Off</button>
-    </div>
-  `;
-}
-
-function logOff() {
-  document.getElementById("app").innerHTML = `
-    <div class="header">
-      <h1>Logged Off</h1>
-      <p>Shift complete</p>
-    </div>
-
-    <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
-      <div style="
-        position:absolute;
-        left:0;
-        top:18px;
-        bottom:18px;
-        width:4px;
-        border-radius:999px;
-        background:rgba(255,255,255,.65);
-      "></div>
-
-      <div style="padding-left:10px;">
-        <h2>Good work today</h2>
-        <p>Your jobs and travel have been logged.</p>
-      </div>
-
-      <button class="button secondary" onclick="resetDemo()">Reset Demo Day</button>
-    </div>
-  `;
-}
-
-function resetDemo() {
-  jobs.forEach(job => job.status = "Pending");
-  activeJobIndex = 0;
+  jobs[activeJobIndex].state = "Completed";
   showDashboard();
 }
 
