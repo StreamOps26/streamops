@@ -34,46 +34,20 @@ let jobs = [
       "8 x Dock Levellers",
       "2 x High Speed Doors"
     ]
-  },
-  {
-    customer: "Amazon Birmingham",
-    equipment: "High Speed Door Opening",
-    type: "Site Survey",
-    state: "Ready",
-    siteContact: "Facilities Team",
-    sitePhone: "0121 111 1111",
-    reportTo: "Main Security Gate",
-    siteNote: "Photo ID required at security.",
-    distance: "18.4 miles",
-    eta: "35 mins",
-    heading: "Customer Request",
-    details: [
-      "Measure opening for replacement high-speed door.",
-      "Check power supply location.",
-      "Confirm fixing structure."
-    ]
-  },
-  {
-    customer: "ASDA Swindon",
-    equipment: "Industrial Door ID200",
-    type: "Planned Repairs",
-    state: "Ready",
-    siteContact: "Loading Bay Manager",
-    sitePhone: "01793 000 000",
-    reportTo: "Rear Service Yard",
-    siteNote: "Loading bay access through rear yard only.",
-    distance: "21.6 miles",
-    eta: "42 mins",
-    heading: "Repair Scope",
-    details: [
-      "Replace damaged bottom seal.",
-      "Adjust limits.",
-      "Test safety edge operation."
-    ]
   }
 ];
 
 let activeJobIndex = 0;
+
+let risks = {
+  slipsTrips: "N/A",
+  movingVehicles: "N/A",
+  workingAtHeight: "N/A",
+  electricalHazards: "N/A",
+  manualHandling: "N/A",
+  hotWorks: "N/A",
+  publicArea: "N/A"
+};
 
 function glowColour(type) {
   if (type === "Routine Service") return "rgba(34,197,94,.72)";
@@ -112,7 +86,6 @@ function getAppleDateTime() {
   const now = new Date();
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-
   return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 }
 
@@ -127,7 +100,6 @@ function dashboardSummaryCard() {
   return `
     <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
       <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:rgba(255,255,255,.65);"></div>
-
       <div style="padding-left:10px;">
         <h2 id="greetingText">${getGreeting()}</h2>
         <p id="liveDateTime">${getAppleDateTime()}</p>
@@ -137,7 +109,7 @@ function dashboardSummaryCard() {
         <h2>Today’s Schedule</h2>
 
         <div style="width:100%; height:12px; background:rgba(255,255,255,.18); border-radius:999px; overflow:hidden; margin:16px 0;">
-          <div style="width:${percent}%; height:100%; background:linear-gradient(90deg,#60a5fa,#2563eb,#22c55e); border-radius:999px; transition:.4s;"></div>
+          <div style="width:${percent}%; height:100%; background:linear-gradient(90deg,#60a5fa,#2563eb,#22c55e); border-radius:999px;"></div>
         </div>
 
         <p>You’ve completed ${completed} of ${jobs.length} jobs today</p>
@@ -231,43 +203,15 @@ function showTravelScreen() {
         <p style="opacity:.75;"><strong>${job.heading}</strong></p>
         ${job.details.map(item => `<p>${item}</p>`).join("")}
 
-        <div style="
-          margin-top:24px;
-          padding:18px;
-          border-radius:18px;
-          background:rgba(255,255,255,.06);
-          border:1px solid rgba(255,255,255,.10);
-        ">
-          <p style="
-            font-size:13px;
-            opacity:.65;
-            margin-bottom:12px;
-            font-weight:600;
-            letter-spacing:.3px;
-          ">
-            SITE INFORMATION
-          </p>
+        <div style="margin-top:24px; padding:18px; border-radius:18px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10);">
+          <p style="font-size:13px; opacity:.65; margin-bottom:12px; font-weight:600; letter-spacing:.3px;">SITE INFORMATION</p>
+          <h3 style="margin:0; font-size:20px; font-weight:600;">${job.siteContact}</h3>
 
-          <h3 style="margin:0; font-size:20px; font-weight:600;">
-            ${job.siteContact}
-          </h3>
-
-          <a
-            href="tel:${job.sitePhone.replace(/\s/g,'')}"
-            style="
-              display:inline-block;
-              margin-top:10px;
-              font-size:18px;
-              font-weight:500;
-              color:white;
-              text-decoration:none;
-            "
-          >
+          <a href="tel:${job.sitePhone.replace(/\s/g,'')}" style="display:inline-block; margin-top:10px; font-size:18px; font-weight:500; color:white; text-decoration:none;">
             ${job.sitePhone}
           </a>
 
           <div style="height:14px;"></div>
-
           <p style="opacity:.75;"><strong>Report to</strong></p>
           <p>${job.reportTo}</p>
 
@@ -291,15 +235,136 @@ function openNavigation() {
 
 function arriveOnSite() {
   jobs[activeJobIndex].state = "On Site";
+  resetRiskAssessment();
+  showRiskAssessment();
+}
+
+function resetRiskAssessment() {
+  risks = {
+    slipsTrips: "N/A",
+    movingVehicles: "N/A",
+    workingAtHeight: "N/A",
+    electricalHazards: "N/A",
+    manualHandling: "N/A",
+    hotWorks: "N/A",
+    publicArea: "N/A"
+  };
+}
+
+function showRiskAssessment() {
+  const job = jobs[activeJobIndex];
 
   document.getElementById("app").innerHTML = `
-    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(jobs[activeJobIndex].type)}">
-      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(jobs[activeJobIndex].type)};"></div>
+    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(job.type)}">
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(job.type)};"></div>
+
+      <div style="padding-left:10px;">
+        <p style="opacity:.65;">Before work starts</p>
+        <h2>Risk Assessment</h2>
+        <p>${job.customer}</p>
+
+        <div style="height:18px;"></div>
+
+        ${riskRow("slipsTrips", "Slips, Trips & Falls")}
+        ${riskRow("movingVehicles", "Moving Vehicles / FLTs")}
+        ${riskRow("workingAtHeight", "Working at Height")}
+        ${riskRow("electricalHazards", "Electrical Hazards")}
+        ${riskRow("manualHandling", "Manual Handling")}
+        ${riskRow("hotWorks", "Hot Works")}
+        ${riskRow("publicArea", "Public / Customer Area")}
+
+        <button class="button" onclick="showRiskSummary()">Generate Risk Assessment</button>
+        <button class="button secondary" onclick="showTravelScreen()">Back</button>
+      </div>
+    </div>
+  `;
+}
+
+function riskRow(key, label) {
+  return `
+    <div style="margin-bottom:18px;">
+      <p style="opacity:.85;"><strong>${label}</strong></p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+        ${riskButton(key, "Yes")}
+        ${riskButton(key, "No")}
+        ${riskButton(key, "N/A")}
+      </div>
+    </div>
+  `;
+}
+
+function riskButton(key, answer) {
+  const selected = risks[key] === answer;
+
+  return `
+    <button
+      onclick="setRisk('${key}', '${answer}')"
+      style="
+        padding:12px;
+        border-radius:14px;
+        border:1px solid ${selected ? "rgba(255,255,255,.45)" : "rgba(255,255,255,.12)"};
+        background:${selected ? "rgba(255,255,255,.18)" : "rgba(255,255,255,.05)"};
+        color:white;
+        font-weight:700;
+      ">
+      ${answer}
+    </button>
+  `;
+}
+
+function setRisk(key, answer) {
+  risks[key] = answer;
+  showRiskAssessment();
+}
+
+function showRiskSummary() {
+  const job = jobs[activeJobIndex];
+
+  document.getElementById("app").innerHTML = `
+    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(job.type)}">
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(job.type)};"></div>
+
+      <div style="padding-left:10px;">
+        <p style="opacity:.65;">Generated form</p>
+        <h2>Risk Assessment</h2>
+
+        <p><strong>Site:</strong> ${job.customer}</p>
+        <p><strong>Equipment:</strong> ${job.equipment}</p>
+
+        <div style="height:18px;"></div>
+
+        <p><strong>Slips, Trips & Falls:</strong> ${risks.slipsTrips}</p>
+        <p><strong>Moving Vehicles / FLTs:</strong> ${risks.movingVehicles}</p>
+        <p><strong>Working at Height:</strong> ${risks.workingAtHeight}</p>
+        <p><strong>Electrical Hazards:</strong> ${risks.electricalHazards}</p>
+        <p><strong>Manual Handling:</strong> ${risks.manualHandling}</p>
+        <p><strong>Hot Works:</strong> ${risks.hotWorks}</p>
+        <p><strong>Public / Customer Area:</strong> ${risks.publicArea}</p>
+
+        <div style="height:18px;"></div>
+
+        <p style="opacity:.75;"><strong>Control Measures</strong></p>
+        <p>Maintain a safe working area, use appropriate PPE, and stop work if conditions become unsafe.</p>
+
+        <button class="button" onclick="showOnSiteHub()">Risk Assessment Complete</button>
+        <button class="button secondary" onclick="showRiskAssessment()">Edit Assessment</button>
+      </div>
+    </div>
+  `;
+}
+
+function showOnSiteHub() {
+  const job = jobs[activeJobIndex];
+
+  document.getElementById("app").innerHTML = `
+    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(job.type)}">
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(job.type)};"></div>
 
       <div style="padding-left:10px;">
         <p style="opacity:.65;">On Site</p>
-        <h2>${jobs[activeJobIndex].customer}</h2>
-        <p><strong>${jobs[activeJobIndex].equipment}</strong></p>
+        <h2>${job.customer}</h2>
+        <p><strong>${job.equipment}</strong></p>
         <p class="status">On Site</p>
       </div>
 
