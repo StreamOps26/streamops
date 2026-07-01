@@ -26,23 +26,47 @@ function currentJob() {
 }
 
 function progress(current) {
-  const steps = ["Travel", "Risk", "Work", "Report", "Complete"];
+  let percent = 0;
+  let hoursWorked = "0h 00m";
+
+  if (jobStatus === "Travelling") {
+    percent = 20;
+    hoursWorked = "0h 15m";
+  }
+
+  if (jobStatus === "On Site") {
+    percent = 45;
+    hoursWorked = "1h 10m";
+  }
+
+  if (workflowStep === "review") {
+    percent = 75;
+    hoursWorked = "2h 30m";
+  }
+
+  if (jobStatus === "Completed") {
+    percent = 100;
+    hoursWorked = "3h 15m";
+  }
+
   return `
     <div class="card">
-      <p><strong>Progress</strong></p>
-      <div style="display:flex;justify-content:space-between;gap:6px;font-size:12px;">
-        ${steps.map(step => `
-          <div style="
-            flex:1;
-            text-align:center;
-            padding:8px 4px;
-            border-radius:999px;
-            background:${step === current ? "#2563eb" : "#e2e8f0"};
-            color:${step === current ? "white" : "#475569"};
-            font-weight:bold;">
-            ${step === current ? "● " : ""}${step}
-          </div>
-        `).join("")}
+      <p style="text-align:center; opacity:.75;">Total daily hours worked</p>
+      <h2 style="text-align:center;">${hoursWorked}</h2>
+
+      <div style="display:flex; justify-content:space-between; font-size:13px; opacity:.75; margin-bottom:8px;">
+        <span>Start</span>
+        <span>End</span>
+      </div>
+
+      <div style="width:100%; height:12px; background:rgba(255,255,255,.18); border-radius:999px; overflow:hidden;">
+        <div style="
+          width:${percent}%;
+          height:100%;
+          background:linear-gradient(90deg,#60a5fa,#2563eb,#22c55e);
+          border-radius:999px;
+          transition:.4s;">
+        </div>
       </div>
     </div>
   `;
