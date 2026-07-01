@@ -6,6 +6,8 @@ let jobs = [
     state: "Ready",
     siteContact: "Goods In Office",
     sitePhone: "0118 000 0000",
+    reportTo: "Loading Bay 4",
+    siteNote: "Ask for Mark Williams on arrival.",
     distance: "7.3 miles",
     eta: "14 mins",
     heading: "Customer Reported",
@@ -22,6 +24,8 @@ let jobs = [
     state: "Ready",
     siteContact: "Depot Reception",
     sitePhone: "0121 000 0000",
+    reportTo: "Goods In",
+    siteNote: "Report to reception before entering loading bay area.",
     distance: "12.8 miles",
     eta: "28 mins",
     heading: "Scope of Work",
@@ -38,6 +42,8 @@ let jobs = [
     state: "Ready",
     siteContact: "Facilities Team",
     sitePhone: "0121 111 1111",
+    reportTo: "Main Security Gate",
+    siteNote: "Photo ID required at security.",
     distance: "18.4 miles",
     eta: "35 mins",
     heading: "Customer Request",
@@ -54,6 +60,8 @@ let jobs = [
     state: "Ready",
     siteContact: "Loading Bay Manager",
     sitePhone: "01793 000 000",
+    reportTo: "Rear Service Yard",
+    siteNote: "Loading bay access through rear yard only.",
     distance: "21.6 miles",
     eta: "42 mins",
     heading: "Repair Scope",
@@ -223,17 +231,54 @@ function showTravelScreen() {
         <p style="opacity:.75;"><strong>${job.heading}</strong></p>
         ${job.details.map(item => `<p>${item}</p>`).join("")}
 
-        <div style="height:18px;"></div>
+        <div style="
+          margin-top:24px;
+          padding:18px;
+          border-radius:18px;
+          background:rgba(255,255,255,.06);
+          border:1px solid rgba(255,255,255,.10);
+        ">
+          <p style="
+            font-size:13px;
+            opacity:.65;
+            margin-bottom:12px;
+            font-weight:600;
+            letter-spacing:.3px;
+          ">
+            SITE INFORMATION
+          </p>
 
-        <p style="opacity:.75;"><strong>Site Contact</strong></p>
-        <p>${job.siteContact}</p>
-        <p>${job.sitePhone}</p>
+          <h3 style="margin:0; font-size:20px; font-weight:600;">
+            ${job.siteContact}
+          </h3>
+
+          <a
+            href="tel:${job.sitePhone.replace(/\s/g,'')}"
+            style="
+              display:inline-block;
+              margin-top:10px;
+              font-size:18px;
+              font-weight:500;
+              color:white;
+              text-decoration:none;
+            "
+          >
+            ${job.sitePhone}
+          </a>
+
+          <div style="height:14px;"></div>
+
+          <p style="opacity:.75;"><strong>Report to</strong></p>
+          <p>${job.reportTo}</p>
+
+          <p style="opacity:.75; margin-top:12px;"><strong>Site Notes</strong></p>
+          <p>${job.siteNote}</p>
+        </div>
 
         <p class="status">Travelling</p>
       </div>
 
       <button class="button" onclick="openNavigation()">Open Navigation</button>
-      <button class="button secondary" onclick="callSite()">Call Site</button>
       <button class="button" onclick="arriveOnSite()">Arrive On Site</button>
       <button class="button secondary" onclick="showDashboard()">Back to Dashboard</button>
     </div>
@@ -242,10 +287,6 @@ function showTravelScreen() {
 
 function openNavigation() {
   alert("Navigation will open in Apple Maps / Google Maps later.");
-}
-
-function callSite() {
-  alert("This will call the site contact later.");
 }
 
 function arriveOnSite() {
