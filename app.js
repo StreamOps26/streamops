@@ -34,20 +34,73 @@ let jobs = [
       "8 x Dock Levellers",
       "2 x High Speed Doors"
     ]
+  },
+  {
+    customer: "Amazon Birmingham",
+    equipment: "High Speed Door Opening",
+    type: "Site Survey",
+    state: "Ready",
+    siteContact: "Facilities Team",
+    sitePhone: "0121 111 1111",
+    reportTo: "Main Security Gate",
+    siteNote: "Photo ID required at security.",
+    distance: "18.4 miles",
+    eta: "35 mins",
+    heading: "Customer Request",
+    details: [
+      "Measure opening for replacement high-speed door.",
+      "Check power supply location.",
+      "Confirm fixing structure."
+    ]
+  },
+  {
+    customer: "ASDA Swindon",
+    equipment: "Industrial Door ID200",
+    type: "Planned Repairs",
+    state: "Ready",
+    siteContact: "Loading Bay Manager",
+    sitePhone: "01793 000 000",
+    reportTo: "Rear Service Yard",
+    siteNote: "Loading bay access through rear yard only.",
+    distance: "21.6 miles",
+    eta: "42 mins",
+    heading: "Repair Scope",
+    details: [
+      "Replace damaged bottom seal.",
+      "Adjust limits.",
+      "Test safety edge operation."
+    ]
   }
 ];
 
 let activeJobIndex = 0;
+let riskIndex = 0;
 
 let risks = {
-  slipsTrips: "N/A",
-  movingVehicles: "N/A",
   workingAtHeight: "N/A",
-  electricalHazards: "N/A",
   manualHandling: "N/A",
+  toolsEquipment: "N/A",
+  correctPPE: "N/A",
   hotWorks: "N/A",
-  publicArea: "N/A"
+  electricity: "N/A",
+  loneWorking: "N/A",
+  asbestos: "N/A",
+  coshh: "N/A",
+  additionalHazards: "N/A"
 };
+
+let riskQuestions = [
+  ["workingAtHeight", "Working at Height", "Will you be working at height?", "Consider work above ground level where a fall could cause injury."],
+  ["manualHandling", "Manual Handling", "Will manual handling be required?", "Consider lifting, carrying, pushing or pulling equipment."],
+  ["toolsEquipment", "Use of Tools / Equipment", "Will tools or equipment be used?", "Consider power tools, hand tools and specialist equipment."],
+  ["correctPPE", "Correct PPE", "Is correct PPE available and being used?", "Confirm required PPE is suitable for the task."],
+  ["hotWorks", "Hot Works", "Will hot works be carried out?", "Consider grinding, cutting, welding or heat-producing work."],
+  ["electricity", "Electricity", "Is there an electrical risk?", "Consider live supplies, isolation and control panels."],
+  ["loneWorking", "Lone Working", "Are you lone working?", "Consider communication, site access and emergency arrangements."],
+  ["asbestos", "Asbestos", "Is asbestos a possible hazard?", "Stop work if suspected asbestos is found."],
+  ["coshh", "COSHH", "Are hazardous substances involved?", "Consider oils, sprays, cleaners and other substances."],
+  ["additionalHazards", "Additional Hazards", "Are there any additional hazards?", "Consider anything not already covered."]
+];
 
 function glowColour(type) {
   if (type === "Routine Service") return "rgba(34,197,94,.72)";
@@ -75,6 +128,15 @@ function jobGlow(type) {
   `;
 }
 
+function yellowGlow() {
+  return `
+    box-shadow:
+      -6px 0 22px rgba(250,204,21,.72),
+      inset 4px 0 12px rgba(250,204,21,.08),
+      0 10px 40px rgba(0,0,0,.30);
+  `;
+}
+
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour < 12) return "Good morning Scott";
@@ -86,6 +148,7 @@ function getAppleDateTime() {
   const now = new Date();
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
   return `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
 }
 
@@ -100,6 +163,7 @@ function dashboardSummaryCard() {
   return `
     <div class="card" style="position:relative; overflow:hidden; ${dashboardGlow()}">
       <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:rgba(255,255,255,.65);"></div>
+
       <div style="padding-left:10px;">
         <h2 id="greetingText">${getGreeting()}</h2>
         <p id="liveDateTime">${getAppleDateTime()}</p>
@@ -212,6 +276,7 @@ function showTravelScreen() {
           </a>
 
           <div style="height:14px;"></div>
+
           <p style="opacity:.75;"><strong>Report to</strong></p>
           <p>${job.reportTo}</p>
 
@@ -235,79 +300,89 @@ function openNavigation() {
 
 function arriveOnSite() {
   jobs[activeJobIndex].state = "On Site";
+  riskIndex = 0;
   resetRiskAssessment();
   showRiskAssessment();
 }
 
 function resetRiskAssessment() {
   risks = {
-    slipsTrips: "N/A",
-    movingVehicles: "N/A",
     workingAtHeight: "N/A",
-    electricalHazards: "N/A",
     manualHandling: "N/A",
+    toolsEquipment: "N/A",
+    correctPPE: "N/A",
     hotWorks: "N/A",
-    publicArea: "N/A"
+    electricity: "N/A",
+    loneWorking: "N/A",
+    asbestos: "N/A",
+    coshh: "N/A",
+    additionalHazards: "N/A"
   };
 }
 
 function showRiskAssessment() {
   const job = jobs[activeJobIndex];
+  const risk = riskQuestions[riskIndex];
+  const key = risk[0];
+  const progressPercent = ((riskIndex + 1) / riskQuestions.length) * 100;
 
   document.getElementById("app").innerHTML = `
-    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(job.type)}">
-      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(job.type)};"></div>
+    <div class="card" style="position:relative; overflow:hidden; ${yellowGlow()}">
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:rgba(250,204,21,.85);"></div>
 
       <div style="padding-left:10px;">
-        <p style="opacity:.65;">Before work starts</p>
-        <h2>Risk Assessment</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button onclick="riskIndex > 0 ? previousRisk() : showTravelScreen()" style="background:none;border:none;color:white;font-size:16px;">‹ Back</button>
+          <p style="opacity:.75;">${riskIndex + 1} of ${riskQuestions.length}</p>
+        </div>
+
+        <div style="width:100%; height:8px; background:rgba(255,255,255,.14); border-radius:999px; overflow:hidden; margin:18px 0;">
+          <div style="width:${progressPercent}%; height:100%; background:linear-gradient(90deg,#fef08a,#facc15); border-radius:999px;"></div>
+        </div>
+
+        <p style="color:#facc15; letter-spacing:.8px; font-weight:700;">RISK ASSESSMENT</p>
+        <h2>${risk[1]}</h2>
         <p>${job.customer}</p>
+        <p style="opacity:.7;">${job.equipment}</p>
 
-        <div style="height:18px;"></div>
+        <div style="height:24px;"></div>
 
-        ${riskRow("slipsTrips", "Slips, Trips & Falls")}
-        ${riskRow("movingVehicles", "Moving Vehicles / FLTs")}
-        ${riskRow("workingAtHeight", "Working at Height")}
-        ${riskRow("electricalHazards", "Electrical Hazards")}
-        ${riskRow("manualHandling", "Manual Handling")}
-        ${riskRow("hotWorks", "Hot Works")}
-        ${riskRow("publicArea", "Public / Customer Area")}
+        <div style="
+          padding:24px;
+          border-radius:24px;
+          background:rgba(255,255,255,.06);
+          border:1px solid rgba(250,204,21,.25);
+          text-align:center;
+        ">
+          <h2>${risk[2]}</h2>
+          <p style="opacity:.7;">${risk[3]}</p>
 
-        <button class="button" onclick="showRiskSummary()">Generate Risk Assessment</button>
-        <button class="button secondary" onclick="showTravelScreen()">Back</button>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:24px;">
+            ${riskOption(key, "N/A")}
+            ${riskOption(key, "Yes")}
+            ${riskOption(key, "No")}
+          </div>
+        </div>
+
+        <button class="button" style="background:linear-gradient(135deg,#fde047,#facc15); color:#111827;" onclick="nextRisk()">Next</button>
+        <button class="button secondary" onclick="previousRisk()">Back</button>
       </div>
     </div>
   `;
 }
 
-function riskRow(key, label) {
-  return `
-    <div style="margin-bottom:18px;">
-      <p style="opacity:.85;"><strong>${label}</strong></p>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-        ${riskButton(key, "Yes")}
-        ${riskButton(key, "No")}
-        ${riskButton(key, "N/A")}
-      </div>
-    </div>
-  `;
-}
-
-function riskButton(key, answer) {
+function riskOption(key, answer) {
   const selected = risks[key] === answer;
 
   return `
-    <button
-      onclick="setRisk('${key}', '${answer}')"
-      style="
-        padding:12px;
-        border-radius:14px;
-        border:1px solid ${selected ? "rgba(255,255,255,.45)" : "rgba(255,255,255,.12)"};
-        background:${selected ? "rgba(255,255,255,.18)" : "rgba(255,255,255,.05)"};
-        color:white;
-        font-weight:700;
-      ">
+    <button onclick="setRisk('${key}', '${answer}')" style="
+      padding:18px 8px;
+      border-radius:18px;
+      border:1px solid ${selected ? "rgba(250,204,21,.9)" : "rgba(255,255,255,.15)"};
+      background:${selected ? "rgba(250,204,21,.18)" : "rgba(255,255,255,.05)"};
+      color:${selected ? "#fde047" : "white"};
+      font-weight:700;
+    ">
       ${answer}
     </button>
   `;
@@ -318,37 +393,50 @@ function setRisk(key, answer) {
   showRiskAssessment();
 }
 
+function nextRisk() {
+  if (riskIndex < riskQuestions.length - 1) {
+    riskIndex++;
+    showRiskAssessment();
+  } else {
+    showRiskSummary();
+  }
+}
+
+function previousRisk() {
+  if (riskIndex > 0) {
+    riskIndex--;
+    showRiskAssessment();
+  }
+}
+
 function showRiskSummary() {
   const job = jobs[activeJobIndex];
 
   document.getElementById("app").innerHTML = `
-    <div class="card" style="position:relative; overflow:hidden; ${jobGlow(job.type)}">
-      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:${glowColour(job.type)};"></div>
+    <div class="card" style="position:relative; overflow:hidden; ${yellowGlow()}">
+      <div style="position:absolute; left:0; top:18px; bottom:18px; width:4px; border-radius:999px; background:rgba(250,204,21,.85);"></div>
 
       <div style="padding-left:10px;">
-        <p style="opacity:.65;">Generated form</p>
-        <h2>Risk Assessment</h2>
+        <p style="color:#facc15; letter-spacing:.8px; font-weight:700;">RISK ASSESSMENT</p>
+        <h2>Complete</h2>
+        <p>${riskQuestions.length} checks completed.</p>
+
+        <div style="height:18px;"></div>
 
         <p><strong>Site:</strong> ${job.customer}</p>
         <p><strong>Equipment:</strong> ${job.equipment}</p>
 
         <div style="height:18px;"></div>
 
-        <p><strong>Slips, Trips & Falls:</strong> ${risks.slipsTrips}</p>
-        <p><strong>Moving Vehicles / FLTs:</strong> ${risks.movingVehicles}</p>
-        <p><strong>Working at Height:</strong> ${risks.workingAtHeight}</p>
-        <p><strong>Electrical Hazards:</strong> ${risks.electricalHazards}</p>
-        <p><strong>Manual Handling:</strong> ${risks.manualHandling}</p>
-        <p><strong>Hot Works:</strong> ${risks.hotWorks}</p>
-        <p><strong>Public / Customer Area:</strong> ${risks.publicArea}</p>
+        ${riskQuestions.map(risk => `<p><strong>${risk[1]}:</strong> ${risks[risk[0]]}</p>`).join("")}
 
         <div style="height:18px;"></div>
 
         <p style="opacity:.75;"><strong>Control Measures</strong></p>
         <p>Maintain a safe working area, use appropriate PPE, and stop work if conditions become unsafe.</p>
 
-        <button class="button" onclick="showOnSiteHub()">Risk Assessment Complete</button>
-        <button class="button secondary" onclick="showRiskAssessment()">Edit Assessment</button>
+        <button class="button" style="background:linear-gradient(135deg,#fde047,#facc15); color:#111827;" onclick="showOnSiteHub()">Continue to Job</button>
+        <button class="button secondary" onclick="riskIndex=0; showRiskAssessment()">Edit Assessment</button>
       </div>
     </div>
   `;
