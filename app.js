@@ -78,29 +78,29 @@ let riskIndex = 0;
 let signatureCaptured = false;
 
 let risks = {
-  workingAtHeight: "N/A",
-  manualHandling: "N/A",
-  toolsEquipment: "N/A",
-  correctPPE: "N/A",
-  hotWorks: "N/A",
-  electricity: "N/A",
-  loneWorking: "N/A",
-  asbestos: "N/A",
-  coshh: "N/A",
-  additionalHazards: "N/A"
+  workingAtHeight: "No",
+  manualHandling: "No",
+  toolsEquipment: "No",
+  correctPPE: "No",
+  hotWorks: "No",
+  electricity: "No",
+  loneWorking: "No",
+  asbestos: "No",
+  coshh: "No",
+  additionalHazards: "No"
 };
 
 let riskQuestions = [
-  ["workingAtHeight", "Working at Height", "Will you be working at height?", "Consider work above ground level where a fall could cause injury."],
-  ["manualHandling", "Manual Handling", "Will manual handling be required?", "Consider lifting, carrying, pushing or pulling equipment."],
-  ["toolsEquipment", "Use of Tools / Equipment", "Will tools or equipment be used?", "Consider power tools, hand tools and specialist equipment."],
-  ["correctPPE", "Correct PPE", "Is correct PPE available and being used?", "Confirm required PPE is suitable for the task."],
-  ["hotWorks", "Hot Works", "Will hot works be carried out?", "Consider grinding, cutting, welding or heat-producing work."],
-  ["electricity", "Electricity", "Is there an electrical risk?", "Consider live supplies, isolation and control panels."],
-  ["loneWorking", "Lone Working", "Are you lone working?", "Consider communication, site access and emergency arrangements."],
-  ["asbestos", "Asbestos", "Is asbestos a possible hazard?", "Stop work if suspected asbestos is found."],
-  ["coshh", "COSHH", "Are hazardous substances involved?", "Consider oils, sprays, cleaners and other substances."],
-  ["additionalHazards", "Additional Hazards", "Are there any additional hazards?", "Consider anything not already covered."]
+  ["workingAtHeight", "Working at Height", "Includes ladders, steps, MEWPs or any area where a fall could cause injury."],
+  ["manualHandling", "Manual Handling", "Includes lifting, carrying, pushing, pulling or positioning heavy parts, tools or equipment."],
+  ["toolsEquipment", "Use of Tools / Equipment", "Includes hand tools, power tools, testing equipment or specialist service tools."],
+  ["correctPPE", "Correct PPE", "Confirm use of safety boots, hi-vis clothing and any task-specific PPE."],
+  ["hotWorks", "Hot Works", "Includes grinding, cutting, welding or any work that may create heat, sparks or flames."],
+  ["electricity", "Electricity", "Includes control panels, live supplies, isolation, damaged cables, motors, sensors or electrical testing."],
+  ["loneWorking", "Lone Working", "Consider site access, communication, emergency arrangements and whether additional support is required."],
+  ["asbestos", "Asbestos", "Consult the site's asbestos register before commencing work. Stop work immediately if suspected asbestos-containing material is found or disturbed."],
+  ["coshh", "COSHH", "Includes oils, grease, sprays, cleaners, adhesives, hydraulic fluid or other controlled substances."],
+  ["additionalHazards", "Additional Hazards", "Record any site-specific hazards not already covered before starting work."]
 ];
 
 function glowColour(type) {
@@ -310,16 +310,16 @@ function resetRiskAssessment() {
   signatureCaptured = false;
 
   risks = {
-    workingAtHeight: "N/A",
-    manualHandling: "N/A",
-    toolsEquipment: "N/A",
-    correctPPE: "N/A",
-    hotWorks: "N/A",
-    electricity: "N/A",
-    loneWorking: "N/A",
-    asbestos: "N/A",
-    coshh: "N/A",
-    additionalHazards: "N/A"
+    workingAtHeight: "No",
+    manualHandling: "No",
+    toolsEquipment: "No",
+    correctPPE: "No",
+    hotWorks: "No",
+    electricity: "No",
+    loneWorking: "No",
+    asbestos: "No",
+    coshh: "No",
+    additionalHazards: "No"
   };
 }
 
@@ -351,11 +351,10 @@ function showRiskAssessment() {
         <div style="height:24px;"></div>
 
         <div style="padding:24px; border-radius:24px; background:rgba(255,255,255,.06); border:1px solid rgba(250,204,21,.25); text-align:center;">
-          <h2>${risk[2]}</h2>
-          <p style="opacity:.7;">${risk[3]}</p>
+          <h2>Does this hazard apply to today's work?</h2>
+          <p style="opacity:.7;">${risk[2]}</p>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:24px;">
-            ${riskOption(key, "N/A")}
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:24px;">
             ${riskOption(key, "Yes")}
             ${riskOption(key, "No")}
           </div>
@@ -497,6 +496,7 @@ function initSignaturePad() {
   function draw(e) {
     if (!drawing) return;
     e.preventDefault();
+
     const pos = getPos(e);
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
