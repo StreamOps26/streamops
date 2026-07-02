@@ -75,6 +75,7 @@ let jobs = [
 
 let activeJobIndex = 0;
 let riskIndex = 0;
+let signatureCaptured = false;
 
 let risks = {
   workingAtHeight: "N/A",
@@ -105,8 +106,8 @@ let riskQuestions = [
 function glowColour(type) {
   if (type === "Routine Service") return "rgba(34,197,94,.72)";
   if (type === "Callout") return "rgba(239,68,68,.72)";
-  if (type === "Planned Repairs") return "rgba(245,158,11,.72)";
-  if (type === "Site Survey") return "rgba(59,130,246,.72)";
+  if (type === "Planned Repairs") return "rgba(59,130,246,.72)";
+  if (type === "Site Survey") return "rgba(226,232,240,.55)";
   return "rgba(255,255,255,.45)";
 }
 
@@ -306,6 +307,8 @@ function arriveOnSite() {
 }
 
 function resetRiskAssessment() {
+  signatureCaptured = false;
+
   risks = {
     workingAtHeight: "N/A",
     manualHandling: "N/A",
@@ -347,13 +350,7 @@ function showRiskAssessment() {
 
         <div style="height:24px;"></div>
 
-        <div style="
-          padding:24px;
-          border-radius:24px;
-          background:rgba(255,255,255,.06);
-          border:1px solid rgba(250,204,21,.25);
-          text-align:center;
-        ">
+        <div style="padding:24px; border-radius:24px; background:rgba(255,255,255,.06); border:1px solid rgba(250,204,21,.25); text-align:center;">
           <h2>${risk[2]}</h2>
           <p style="opacity:.7;">${risk[3]}</p>
 
@@ -435,11 +432,114 @@ function showRiskSummary() {
         <p style="opacity:.75;"><strong>Control Measures</strong></p>
         <p>Maintain a safe working area, use appropriate PPE, and stop work if conditions become unsafe.</p>
 
-        <button class="button" style="background:linear-gradient(135deg,#fde047,#facc15); color:#111827;" onclick="showOnSiteHub()">Continue to Job</button>
+        <div style="height:18px;"></div>
+
+        <p style="opacity:.75;"><strong>Engineer Signature</strong></p>
+        <p style="opacity:.65;">Sign below to confirm the risk assessment has been completed correctly.</p>
+
+        <canvas id="signaturePad" width="360" height="160" style="
+          width:100%;
+          height:160px;
+          background:rgba(255,255,255,.06);
+          border:1px solid rgba(250,204,21,.25);
+          border-radius:20px;
+          margin-top:12px;
+          touch-action:none;
+        "></canvas>
+
+        <button class="button secondary" onclick="clearSignature()">Clear Signature</button>
+
+        <button id="submitRiskButton" class="button" style="
+          background:${signatureCaptured ? "linear-gradient(135deg,#fde047,#facc15)" : "rgba(255,255,255,.10)"};
+          color:${signatureCaptured ? "#111827" : "rgba(255,255,255,.35)"};
+          cursor:${signatureCaptured ? "pointer" : "not-allowed"};
+        " onclick="submitRiskAssessment()">
+          Continue to Job
+        </button>
+
         <button class="button secondary" onclick="riskIndex=0; showRiskAssessment()">Edit Assessment</button>
       </div>
     </div>
   `;
+
+  setTimeout(initSignaturePad, 50);
+}
+
+function initSignaturePad() {
+  const canvas = document.getElementById("signaturePad");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  ctx.strokeStyle = "#fde047";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches ? e.touches[0] : e;
+
+    return {
+      x: (touch.clientX - rect.left) * (canvas.width / rect.width),
+      y: (touch.clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+  }
+
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+
+    signatureCaptured = true;
+    updateSignatureButton();
+  }
+
+  function stop() {
+    drawing = false;
+  }
+
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mousemove", draw);
+  canvas.addEventListener("mouseup", stop);
+  canvas.addEventListener("mouseleave", stop);
+
+  canvas.addEventListener("touchstart", start);
+  canvas.addEventListener("touchmove", draw);
+  canvas.addEventListener("touchend", stop);
+}
+
+function updateSignatureButton() {
+  const btn = document.getElementById("submitRiskButton");
+  if (!btn) return;
+
+  btn.style.background = "linear-gradient(135deg,#fde047,#facc15)";
+  btn.style.color = "#111827";
+  btn.style.cursor = "pointer";
+}
+
+function clearSignature() {
+  signatureCaptured = false;
+  showRiskSummary();
+}
+
+function submitRiskAssessment() {
+  if (!signatureCaptured) {
+    alert("Please sign before continuing.");
+    return;
+  }
+
+  showOnSiteHub();
 }
 
 function showOnSiteHub() {
